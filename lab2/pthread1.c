@@ -17,8 +17,8 @@ int main()
 	int T1ret, T2ret;
 	
 	/* Create two threads */ 
-	T2ret = pthread_create(&thread2, NULL, print_message, (void*) str1);
-	T1ret = pthread_create(&thread1, NULL, print_message, (void*) str2);
+	T1ret = pthread_create(&thread1, NULL, print_message, (void*) str1);
+	T2ret = pthread_create(&thread2, NULL, print_message, (void*) str2);
 	
 	/* main() thread now waits for both threads to finish */
 	pthread_join(thread1, NULL);
