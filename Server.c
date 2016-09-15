@@ -19,19 +19,24 @@ int main( int argc, char *argv[] )
 	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
 	if (sockfd < 0 )
 		error( "ERROR opening socket" );
+	//bzero( ( char * ) &serv_addr, sizeof( serv_addr ) );
 	//memset() is preferred over bzero()
-    //bzero( ( char * ) &serv_addr, sizeof( serv_addr ) );
-	memset( (char * ) &serv_addr, 0, sizeof( serv_addr ) );
+    memset( (char * ) &serv_addr, 0, sizeof( serv_addr ) );
     serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons( port ); // host to network
-	if ( bind( sockfd, ( struct sockaddr * ) &serv_addr, sizeof( serv_addr ) ) < 0 )
+	if ( bind( sockfd, ( struct sockaddr * ) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
 		error( "ERROR binding to socket" );
+		return -1;
+	}
+	printf( "Waiting for the client on port %d\n", port );
 	listen(sockfd, 2 );
 	clilen = sizeof( cli_addr );
 	newsockfd = accept( sockfd, (struct sockaddr * ) &cli_addr, &clilen );
-	if ( newsockfd < 0 )
+	if ( newsockfd < 0 ) {
 		error( "ERROR on accept" );
+		return -1;
+	}
 	n = read( newsockfd, buffer, 255 );
 	if ( n < 0 )
 		error( "ERROR reading from socket" );
