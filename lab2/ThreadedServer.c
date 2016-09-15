@@ -16,7 +16,6 @@ int *connection( void *newsockfd ) {
 	sockfd = (int *) newsockfd;
 	if ( sockfd < 0 )
 		error( "ERROR on accept" );
-	printf("sockfd %d \n", sockfd);
 	n = read( newsockfd, buffer, 255 );
 	if ( n < 0 )
 		error( "ERROR reading from socket" );
