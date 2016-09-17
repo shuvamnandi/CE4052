@@ -21,7 +21,7 @@ int *connection( void *newsockfd ) {
 		error( "ERROR reading from socket" );
 	num = atoi( buffer );
 	printf("Number received from Client: %d \n", num );
-    num_mult = num * 5;
+	num_mult = num * 5;
 	printf("%d multiplied by 5: %d\n", num, num_mult );
 	snprintf(buffer, 256, "%d", num_mult);
 	n = write( newsockfd, buffer, strlen(buffer) );
@@ -45,8 +45,8 @@ int main( int argc, char *argv[] )
 		error( "ERROR opening socket" );
 	//bzero( ( char * ) &serv_addr, sizeof( serv_addr ) );
 	//memset() is preferred over bzero()
-    memset( (char * ) &serv_addr, 0, sizeof( serv_addr ) );
-    serv_addr.sin_family = AF_INET;
+	memset( (char * ) &serv_addr, 0, sizeof( serv_addr ) );
+	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons( port ); // host to network
 	if ( bind( sockfd, ( struct sockaddr * ) &serv_addr, sizeof( serv_addr ) ) < 0 )
@@ -66,6 +66,6 @@ int main( int argc, char *argv[] )
 		pthread_join( thread_connect, NULL );
 		//printf("Thread status: %d \n", thread_connect_status );
 	}
-    return 0;
+	return 0;
 }
 

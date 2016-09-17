@@ -18,7 +18,7 @@ int main(int argc , char *argv[])
     {
         printf("Could not create socket");
     }
-         
+    //providing IP address of google.com.sg
     server.sin_addr.s_addr = inet_addr("74.125.68.99");
     server.sin_family = AF_INET;
     server.sin_port = htons( 80 );
