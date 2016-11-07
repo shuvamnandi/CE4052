@@ -1,25 +1,21 @@
 #include <pthread.h>
-#include <unistd.h>
+#include <signal.h>
 #include "led.h"
 #include "buzzer.h"
 #include "timeout.h"
 
 #define BUTTON 14
-
-typedef enum {
-  INITIALISE, 
-  RED_ON,
-  GREEN_ON,
-  GREEN_AT_1HZ,
-  GREEN_AT_2HZ,
-  YELLOW_ON
-} traffic_light_states;
+volatile sig_atomic_t flag = 0;
 
 void set_up() {
   wiringPiSetup();
   led_set_up();
   buzzer_set_up();
   pinMode(BUTTON, INPUT);
+}
+
+void handle_keyboard_interrupt(int sig) {
+  flag = 1;
 }
 
 void state_initialise(void);
@@ -55,6 +51,9 @@ void state_initialise(void) {
 void state_red_on(void) {
   led_on(RED);
   while(digitalRead(BUTTON) == LOW) {
+    if(flag) {
+      return ;
+    }
   }
   if(start_countdown(2) == 0) {
     led_off(RED);
@@ -65,22 +64,20 @@ void state_red_on(void) {
 void state_green_on(void) {
   led_on(GREEN);
   if(start_countdown(5) == 0) {
-    //led_off(GREEN);
     state =  &state_green_blink_at_1Hz;
   }
 }
 
 void state_green_blink_at_1Hz(void) {
-  led_on_freq(GREEN,1);
+  led_on_freq(GREEN, 1);
   buzzer_1Hz();
   if(start_countdown(5) == 0) {
-    //led_off(GREEN);
     state = &state_green_blink_at_2Hz;
   }
 }
 
 void state_green_blink_at_2Hz(void) {
-  led_on_freq(GREEN,2);
+  led_on_freq(GREEN, 2);
   buzzer_2Hz();
   if(start_countdown(5) == 0) {
     led_off(GREEN);
@@ -101,8 +98,16 @@ void state_yellow_on(void) {
 
 int main() {
   set_up();
+  signal(SIGINT, handle_keyboard_interrupt);
   while(1) {
     (*state)();
+    if(flag) {
+      led_off(RED);
+      led_off(GREEN);
+      led_off(YELLOW);
+      flag = 0;
+      return 0;
+    }
   }
   return 1;
 }
