@@ -26,12 +26,15 @@ void state_green_blink_at_2Hz(void);
 void state_yellow_on(void);
 void (*state)(void) = state_initialise;
 
-int start_countdown(int time) {
+int timeout(int time) {
   pthread_t thread1;
   int T1ret;
   T1ret = pthread_create(&thread1, NULL, start_timer, time);
   pthread_join(thread1, NULL);
-  return T1ret;
+  if(T1ret == 0) 
+    return 1;
+  else
+    return 0;
 }
 
 void state_initialise(void) {
@@ -39,13 +42,14 @@ void state_initialise(void) {
   led_on(RED);
   led_on(GREEN);
   buzzer_on(500);
-  delay(500);
-  led_off(YELLOW);
-  led_off(RED);
-  led_off(GREEN);
-  buzzer_off();
-  delay(500);
-  state = &state_red_on;
+  if(timeout(1) == 1) {
+    led_off(YELLOW);
+    led_off(RED);
+    led_off(GREEN);
+    buzzer_off();
+    delay(50);
+    state = &state_red_on;
+  }
 }
 
 void state_red_on(void) {
@@ -55,7 +59,7 @@ void state_red_on(void) {
       return ;
     }
   }
-  if(start_countdown(2) == 0) {
+  if(timeout(2) == 1) {
     led_off(RED);
     state = &state_green_on;
   }
@@ -63,7 +67,7 @@ void state_red_on(void) {
 
 void state_green_on(void) {
   led_on(GREEN);
-  if(start_countdown(5) == 0) {
+  if(timeout(5) == 1) {
     state =  &state_green_blink_at_1Hz;
   }
 }
@@ -71,7 +75,7 @@ void state_green_on(void) {
 void state_green_blink_at_1Hz(void) {
   led_on_freq(GREEN, 1);
   buzzer_1Hz();
-  if(start_countdown(5) == 0) {
+  if(timeout(5) == 1) {
     state = &state_green_blink_at_2Hz;
   }
 }
@@ -79,7 +83,7 @@ void state_green_blink_at_1Hz(void) {
 void state_green_blink_at_2Hz(void) {
   led_on_freq(GREEN, 2);
   buzzer_2Hz();
-  if(start_countdown(5) == 0) {
+  if(timeout(5) == 1) {
     led_off(GREEN);
     buzzer_off();
     state = &state_yellow_on;
@@ -89,7 +93,7 @@ void state_green_blink_at_2Hz(void) {
 void state_yellow_on(void) {
   led_on(YELLOW);
   buzzer_on(500);
-  if(start_countdown(2) == 0) {
+  if(timeout(2) == 1) {
     led_off(YELLOW);
     buzzer_off();
     state = &state_red_on;
